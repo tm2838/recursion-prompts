@@ -447,11 +447,19 @@ var nthFibo = function(n) {
 // var words = ['i', 'am', 'learning', 'recursion'];
 // capitalizedWords(words); // ['I', 'AM', 'LEARNING', 'RECURSION']
 var capitalizeWords = function(array) {
+  if (!array.length) {
+    return [];
+  }
+  return [array[0].toUpperCase(), ...capitalizeWords(array.slice(1))];
 };
 
 // 28. Given an array of strings, capitalize the first letter of each index.
 // capitalizeFirst(['car','poop','banana']); // ['Car','Poop','Banana']
 var capitalizeFirst = function(array) {
+  if (!array.length) {
+    return [];
+  }
+  return [array[0][0].toUpperCase() + array[0].slice(1), ...capitalizeFirst(array.slice(1))];
 };
 
 // 29. Return the sum of all even numbers in an object containing nested objects.
@@ -464,11 +472,44 @@ var capitalizeFirst = function(array) {
 // };
 // nestedEvenSum(obj1); // 10
 var nestedEvenSum = function(obj) {
+  if (!Object.values(obj).length) {
+    return 0;
+  }
+
+  let sum = 0;
+  for (let value of Object.values(obj)) {
+    if (typeof value === 'object') {
+      sum += nestedEvenSum(value)
+    }
+
+    if (typeof value === 'number') {
+      if (value % 2 === 0) {
+        sum += value;
+      }
+    }
+  }
+
+  return sum;
 };
 
 // 30. Flatten an array containing nested arrays.
 // flatten([1,[2],[3,[[4]]],5]); // [1,2,3,4,5]
+// flatten([1,[2, 3],[[4]]],5]); // [1,2,3,4,5]
 var flatten = function(array) {
+  if (!array.length) {
+    return [];
+  }
+
+  let flattened = [];
+  for (let elem of array) {
+    if (Array.isArray(elem)) {
+      flattened = flattened.concat(flatten(elem));
+    } else {
+      flattened.push(elem);
+    }
+  }
+
+  return flattened;
 };
 
 // 31. Given a string, return an object containing tallies of each letter.
