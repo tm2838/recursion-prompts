@@ -627,6 +627,23 @@ var numToText = function(str) {
 
 // 37. Return the number of times a tag occurs in the DOM.
 var tagCount = function(tag, node) {
+  node = node ? node : document.body;
+
+  if (!node.hasChildNodes()) {
+    return 0;
+  }
+
+  let count = 0;
+
+  for (let child of node.childNodes) {
+    if (child.nodeName.toLowerCase() === tag) {
+      count += 1;
+    }
+
+    count += tagCount(tag, child);
+  }
+
+  return count;
 };
 
 // 38. Write a function for binary search.
@@ -634,12 +651,65 @@ var tagCount = function(tag, node) {
 // binarySearch(array, 5) // 5
 // https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search
 var binarySearch = function(array, target, min, max) {
+  min = min || 0;
+  max = max || array.length - 1;
+  let mid = Math.floor((min + max)/2);
+
+  if (array[max] < target || array[min] > target) {
+    return null;
+  }
+  if (min <= max) {
+    if (array[mid] < target) {
+      const newIdx = binarySearch(array.slice(mid+1), target);
+      return newIdx !== null ? newIdx + mid + 1 : null;
+    } else if (array[mid] > target) {
+      return binarySearch(array.slice(0, mid), target);
+    } else {
+      return mid;
+    }
+  } else {
+    return null;
+  }
+
 };
 
 // 39. Write a merge sort function.
 // mergeSort([34,7,23,32,5,62]) // [5,7,23,32,34,62]
 // https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/divide-and-conquer-algorithms
 var mergeSort = function(array) {
+  if (!array.length || array.length === 1) {
+    return array;
+  }
+
+  const mid = Math.floor(array.length / 2);
+  const sortedLeft = mergeSort(array.slice(0, mid));
+  const sortedRight = mergeSort(array.slice(mid));
+
+  let k = 0;
+  let i = 0;
+  let j = 0;
+  let mergedArray = array.slice();
+
+  while (k < mergedArray.length) {
+    if (sortedLeft[i] !== undefined && sortedRight[j] !== undefined ) {
+      if (sortedLeft[i] < sortedRight[j]) {
+        mergedArray[k] = sortedLeft[i];
+        i ++;
+      } else {
+        mergedArray[k] = sortedRight[j];
+        j ++;
+      }
+      k ++;
+    } else if (sortedLeft[i] === undefined && sortedRight[j] !== undefined ) {
+      mergedArray = mergedArray.slice(0, k).concat(sortedRight.slice(j));
+      k = mergedArray.length;
+    } else if (sortedLeft[i] !== undefined  && sortedRight[j] === undefined ) {
+      mergedArray = mergedArray.slice(0, k).concat(sortedLeft.slice(i));
+      k = mergedArray.length;
+    }
+  }
+
+  return mergedArray;
 };
 
 // 40. Deeply clone objects and arrays.
@@ -648,4 +718,36 @@ var mergeSort = function(array) {
 // console.log(obj2); // {a:1,b:{bb:{bbb:2}},c:3}
 // obj1 === obj2 // false
 var clone = function(input) {
+  let output;
+
+  if (!Array.isArray(input)) {
+    output = {};
+
+    if (!Object.keys(input).length) {
+      return {};
+    }
+
+    for (let key of Object.keys(input)) {
+      if (typeof input[key] === 'object') {
+        output[key] = clone(input[key]);
+      } else {
+        output[key] = input[key];
+      }
+    }
+  } else {
+    output = [];
+
+    if (!input.length) {
+      return [];
+    }
+
+    for (let value of input) {
+      if (typeof value === 'object') {
+        output.push(clone(value));
+      } else {
+        output.push(value);
+      }
+    }
+  }
+  return output;
 };
